@@ -39,7 +39,7 @@ class Board:
 
 
 
-
+radius = 50
 """     
 class Piece:
     def __init__():
@@ -52,9 +52,17 @@ def setup():
 
 def draw():
     background(225)
-    #ellipse(250,300,40,40) #system tester
-    
+    is_mouse_pressed
+    ellipse(250,300,radius,radius) #system tester
+    is_mouse_pressed()
     board.draw_board()
+
+def is_mouse_pressed():
+    global radius
+    if mousePressed:
+        radius = 100
+    else:
+        radius = 50
 
 #def can_place():
 
