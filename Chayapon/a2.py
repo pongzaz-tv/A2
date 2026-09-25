@@ -1,8 +1,10 @@
 import random
 
+p1 = False
 grid_size = 50
 center_board_x = 250
 center_board_y = 200
+num_shape = 0
 board_info =   [[0,0,0,0,0,0,0,0],
                 [0,0,0,0,0,0,0,0],
                 [0,0,0,0,0,0,0,0],
@@ -152,19 +154,35 @@ def setup():
         i+=1
 
 def draw():
+    global num_shape,p1
     background(225)
-    ellipse(mouseX,mouseY,radius,radius) #system tester
-    is_mouse_pressed()
+    #ellipse(mouseX,mouseY,radius,radius) #system tester
     board.draw_board()
     board.check_grid(mouseX,mouseY)
-    SHAPE_TEMPLATES[12].draw_piece(250,475)
-    
+    if (num_shape == 0):
+
+        if(mouseX<175 and mouseY>440 and is_mouse_pressed() == True):
+            p1 = True
+        else:
+            SHAPE_TEMPLATES[12].draw_piece(15,440)
+
+        if(mouseX>175 and mouseX<335 and mouseY>440 and is_mouse_pressed() == True):
+            SHAPE_TEMPLATES[12].draw_piece(mouseX,mouseY)
+        else:
+            SHAPE_TEMPLATES[0].draw_piece(175,440)
+
+        if(mouseX>335 and mouseY>440 and is_mouse_pressed() == True):
+            SHAPE_TEMPLATES[12].draw_piece(mouseX,mouseY)
+        else:
+            SHAPE_TEMPLATES[2].draw_piece(335,440)
+        if(p1==True):
+            SHAPE_TEMPLATES[12].draw_piece(mouseX,mouseY)
+
 def is_mouse_pressed():
-    global radius
     if mousePressed:
-        radius = 12.5
+        return True
     else:
-        radius = 25
+        return False
 
 #def clear_lines():
 
