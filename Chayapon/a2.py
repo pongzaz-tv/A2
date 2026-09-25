@@ -1,4 +1,3 @@
-from processing import *
 import random
 
 grid_size = 50
@@ -20,15 +19,13 @@ shape_2_upl =   [[1],
                  [1]]
 
 shape_3_downl = [[1,1,1]]
-shape_3_upl = [[1],[1,[1]]]
+shape_3_upl = [[1],[1],[1]]
 
 shape_4_full =  [[1,1],
                  [1,1]]
 shape_4_downl = [[1,1,1,1]]
-shape_4_upl =  [[1],
-                [1],
-                [1],
-                [1]]
+shape_4_upl =  [[1],[1],[1],[1]]
+
 shape_4_left_topr = [[1,1],
                     [1,0]] 
 shape_4_left_topl = [[1,1],
@@ -77,6 +74,7 @@ class Board:
     def check_grid(self,x,y):
         matrix_x = 0
         matrix_y = 0
+        positon = [0,0]
         if(x>50 and x<100):
             matrix_x = 1
         elif (x>100 and x<150):
@@ -110,30 +108,48 @@ class Board:
             matrix_y = 7
         elif (y>375 and y<425):
             matrix_y = 8
-        text(matrix_y,mouseX,mouseY)
-        text(matrix_x,mouseX+4,mouseY)
+        positon[0] = matrix_x
+        positon[1] = matrix_y
+        return positon
 
-    def can_place(self):
+    #def can_place(self):
 
 
 
-    def place():
+    #def place():
 
 
 radius = 25
 
 class Piece:
     bms = []
-    colour = 0
-    def __init__(self,block_matrix_scheme,colour):
+    def __init__(self,block_matrix_scheme):
         self.bms = block_matrix_scheme
-        self.colour = colour
+
+    def draw_piece(self,x,y):
+        i = 0
+        while(i<len(self.bms)):
+            j=0
+            while(j<len(self.bms[i])):
+                if (self.bms[i][j] == 1):
+                    bx = x + (j * 50)
+                    by = y + (i * 50)
+                    line(bx, by, bx + 50, by)
+                    line(bx, by + 50, bx + 50, by + 50)
+                    line(bx, by, bx, by + 50)
+                    line(bx + 50, by, bx + 50, by + 50)
+                j+=1
+            i+=1
 
 def setup():
     global board
     size(500,600)
     frameRate(60)
     board = Board(center_board_x,center_board_y,grid_size,board_info)
+    i = 0
+    while (i<len(SHAPE_TEMPLATES)):
+        SHAPE_TEMPLATES[i] = Piece(SHAPE_TEMPLATES[i])
+        i+=1
 
 def draw():
     background(225)
@@ -141,6 +157,7 @@ def draw():
     is_mouse_pressed()
     board.draw_board()
     board.check_grid(mouseX,mouseY)
+    SHAPE_TEMPLATES[12].draw_piece(250,475)
     
 def is_mouse_pressed():
     global radius
@@ -155,4 +172,4 @@ def is_mouse_pressed():
 
 #def mouseReleased():
 
-run()
+#C:\Users\Pongg\Desktop\A2\Chayapon
