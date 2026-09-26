@@ -1,10 +1,11 @@
-import random
+#import random
 
-p1 = False
+#p1 = p2 = p3 = False
+a = [0,0,0]
 grid_size = 50
 center_board_x = 250
 center_board_y = 200
-num_shape = 0
+num_shape = num_piece = 0
 board_info =   [[0,0,0,0,0,0,0,0],
                 [0,0,0,0,0,0,0,0],
                 [0,0,0,0,0,0,0,0],
@@ -154,29 +155,20 @@ def setup():
         i+=1
 
 def draw():
-    global num_shape,p1
+    global num_shape, num_piece, a
     background(225)
     #ellipse(mouseX,mouseY,radius,radius) #system tester
     board.draw_board()
     board.check_grid(mouseX,mouseY)
-    if (num_shape == 0):
-
-        if(mouseX<175 and mouseY>440 and is_mouse_pressed() == True):
-            p1 = True
-        else:
-            SHAPE_TEMPLATES[12].draw_piece(15,440)
-
-        if(mouseX>175 and mouseX<335 and mouseY>440 and is_mouse_pressed() == True):
-            SHAPE_TEMPLATES[12].draw_piece(mouseX,mouseY)
-        else:
-            SHAPE_TEMPLATES[0].draw_piece(175,440)
-
-        if(mouseX>335 and mouseY>440 and is_mouse_pressed() == True):
-            SHAPE_TEMPLATES[12].draw_piece(mouseX,mouseY)
-        else:
-            SHAPE_TEMPLATES[2].draw_piece(335,440)
-        if(p1==True):
-            SHAPE_TEMPLATES[12].draw_piece(mouseX,mouseY)
+    
+    if(num_piece == 0):
+        a = [int(random(0,13)),int(random(0,13)),int(random(0,13))]
+        num_piece = 3
+    if (num_piece == 3):
+        SHAPE_TEMPLATES[a[0]].draw_piece(15,440)
+        SHAPE_TEMPLATES[a[1]].draw_piece(175,440)
+        SHAPE_TEMPLATES[a[2]].draw_piece(335,440)  
+    
 
 def is_mouse_pressed():
     if mousePressed:
@@ -186,7 +178,8 @@ def is_mouse_pressed():
 
 #def clear_lines():
 
-#def mouseDragged():
+#def draging():
+    
 
 #def mouseReleased():
 
