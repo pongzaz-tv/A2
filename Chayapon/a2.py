@@ -1,6 +1,8 @@
 #import random
 
 p1 = p2 = p3 = False
+p1_placed = p2_placed = p3_placed = False
+chancep1 = chancep2 = chancep3 = 1
 a = [0,0,0]
 grid_size = 50
 center_board_x = 250
@@ -154,55 +156,80 @@ def setup():
         SHAPE_TEMPLATES[i] = Piece(SHAPE_TEMPLATES[i])
         i+=1
 
-def draw():
-    global num_shape, num_piece, a ,p1,p2,p3
+def draw(): #text fnc cannot show list only str & number
+    global num_shape, num_piece, a ,p1,p2,p3 ,p1_placed,p2_placed,p3_placed ,chancep1,chancep2,chancep3
     background(225)
     #ellipse(mouseX,mouseY,radius,radius) #system tester
     board.draw_board()
-    board.check_grid(mouseX,mouseY)
+    position = board.check_grid(mouseX,mouseY)
     
     if(num_piece == 0):
         a = [int(random(0,13)),int(random(0,13)),int(random(0,13))]
         num_piece = 3
-        
-    if (mouseX<175 and mouseY>440 and is_mouse_pressed()==True):
-        p1 = True
-    if (p1 == False):
-        SHAPE_TEMPLATES[a[0]].draw_piece(15,440)
-    else:
-        p2 = p3 = False
-        if(is_mouse_pressed()==True):
-            SHAPE_TEMPLATES[a[0]].draw_piece(mouseX-25,mouseY-25)
-        else:
-            p1 = False
+        p1=p2=p3=p1_placed=p2_placed=p3_placed = False
+        chancep1=chancep2=chancep3 = 1
     
-    if (mouseX>175 and mouseX<335 and mouseY>440 and is_mouse_pressed()==True):
-        p2 = True
-    if (p2 == False):
-        SHAPE_TEMPLATES[a[1]].draw_piece(175,440)
+    if ((p1_placed == False or is_mouse_pressed()==True) and chancep1 == 1):
+            if (mouseX<175 and mouseY>440 and is_mouse_pressed()==True):
+                p1 = True
+            if (p1 == False):
+                SHAPE_TEMPLATES[a[0]].draw_piece(15,440)
+            else:
+                p2 = p3 = False
+                if(is_mouse_pressed()==True):
+                    SHAPE_TEMPLATES[a[0]].draw_piece(mouseX-25,mouseY-25)
+                    p1_placed = can_place(position)
+                else:
+                    p1 = False
     else:
-        p1 = p3 = False
-        if(is_mouse_pressed()==True):
-            SHAPE_TEMPLATES[a[1]].draw_piece(mouseX-25,mouseY-25)
+        if(chancep1 == 1):
+            num_piece -= 1
+            chancep1 = 0
+    
+    if ((p2_placed == False or is_mouse_pressed()==True) and chancep2 == 1):
+        if (mouseX>175 and mouseX<335 and mouseY>440 and is_mouse_pressed()==True):
+            p2 = True
+        if (p2 == False):
+            SHAPE_TEMPLATES[a[1]].draw_piece(175,440)
         else:
-            p2 = False
-            
-    if (mouseX>335 and mouseY>440 and is_mouse_pressed()==True):
-        p3 = True
-    if (p3 == False):
-        SHAPE_TEMPLATES[a[2]].draw_piece(335,440)
+            p1 = p3 = False
+            if(is_mouse_pressed()==True):
+                SHAPE_TEMPLATES[a[1]].draw_piece(mouseX-25,mouseY-25)
+                p2_placed = can_place(position)
+            else:
+                p2 = False
     else:
-        p1 = p2 = False
-        if(is_mouse_pressed()==True):
-            SHAPE_TEMPLATES[a[2]].draw_piece(mouseX-25,mouseY-25)
+        if(chancep2 == 1):
+            num_piece -= 1
+            chancep2 = 0
+          
+    if ((p3_placed == False or is_mouse_pressed()==True) and chancep3 == 1):
+        if (mouseX>335 and mouseY>440 and is_mouse_pressed()==True):
+            p3 = True
+        if (p3 == False):
+            SHAPE_TEMPLATES[a[2]].draw_piece(335,440)
         else:
-            p3 = False
+            p1 = p2 = False
+            if(is_mouse_pressed()==True):
+                SHAPE_TEMPLATES[a[2]].draw_piece(mouseX-25,mouseY-25)
+                p3_placed = can_place(position)
+            else:
+                p3 = False
+    else:
+        if(chancep3 == 1):
+            num_piece -= 1
+            chancep3 = 0
+    text(num_piece,mouseX,mouseY)
 
 def is_mouse_pressed():
     if mousePressed:
         return True
     else:
         return False
+
+def can_place(position):
+    if(position[0] != 0 and position[1] != 0):
+        return True
 
 #def clear_lines():
 
