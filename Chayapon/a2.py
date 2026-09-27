@@ -230,6 +230,8 @@ def is_mouse_pressed():
 def can_place(position):
     if(position[0] != 0 and position[1] != 0):
         return True
+    else:
+        return False
 
 #def clear_lines():
 
