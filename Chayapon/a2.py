@@ -237,8 +237,8 @@ def draw(): #text fnc cannot show list only str & number
             p1 = p3 = False
             if(is_mouse_pressed()==True):
                 SHAPE_TEMPLATES[a[1]].draw_piece(mouseX-25,mouseY-25)
-                p2_placed = can_place(position)
             else:
+                p2_placed = board.place(SHAPE_TEMPLATES[a[1]],position)
                 p2 = False
     else:
         if(chancep2 == 1):
@@ -254,8 +254,8 @@ def draw(): #text fnc cannot show list only str & number
             p1 = p2 = False
             if(is_mouse_pressed()==True):
                 SHAPE_TEMPLATES[a[2]].draw_piece(mouseX-25,mouseY-25)
-                p3_placed = can_place(position)
             else:
+                p3_placed = board.place(SHAPE_TEMPLATES[a[2]],position)
                 p3 = False
     else:
         if(chancep3 == 1):
