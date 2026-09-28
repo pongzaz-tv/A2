@@ -44,11 +44,7 @@ shape_9_full = [[1,1,1],
                 [1,1,1],
                 [1,1,1]]
 
-PALETTE =  [(245, 93, 62),   # Orange-Red
-            (66, 133, 244),  # Blue
-            (52, 168, 83),   # Green
-            (251, 188, 5),   # Yellow
-            (171, 71, 188)]  # Purple
+
 
 SHAPE_TEMPLATES = [shape_dot,shape_2_downl,shape_2_upl,shape_3_downl,shape_3_upl,shape_4_full,shape_4_downl,shape_4_upl,shape_4_left_topr,shape_4_left_topl,shape_4_left_downr,shape_4_left_downl,shape_9_full]
 
@@ -75,6 +71,16 @@ class Board:
             line(draw_cbx,draw_cby,draw_cbx+400,draw_cby)
             draw_cby += 50
             iy += 1
+            
+        r = 0
+        while(r<8):
+            c = 0
+            while(c<8):
+                if(self.board_info[r][c] == 1):
+                    ellipse(self.cbx + (c*50)+25,self.cby + (r*50)+25,40,40)
+                c+=1
+            r+=1
+            fill(255)
 
     def check_grid(self,x,y):
         matrix_x = 0
@@ -117,8 +123,44 @@ class Board:
         positon[1] = matrix_y
         return positon
 
-    #def can_place(self):
-
+    def can_place(self, piece, position):
+        if(position[0] == 0 or position[1] == 0):
+            return False
+        start_x = position[0] - 1
+        start_y = position[1] - 1
+        bms = piece.bms
+        i = 0
+        while(i < len(bms)):
+            j = 0
+            while(j < len(bms[i])):
+                if(bms[i][j] == 1):
+                    target_x = start_x + j
+                    target_y = start_y + i
+                    if(target_x >= 8 or target_y >= 8):
+                        return False
+                    if(self.board_info[target_y][target_x] == 1):
+                        return False
+                j += 1
+            i += 1
+        return True
+    
+    def place(self, piece, position):
+        if(self.can_place(piece, position)):
+            start_x = position[0] - 1
+            start_y = position[1] - 1
+            bms = piece.bms
+            i = 0
+            while(i < len(bms)):
+                j = 0
+                while(j < len(bms[i])):
+                    if(bms[i][j] == 1):
+                        self.board_info[start_y + i][start_x + j] = 1
+                    j += 1
+                i += 1
+            return True
+        else:
+            return False
+                         
 
 
     #def place():
@@ -178,8 +220,8 @@ def draw(): #text fnc cannot show list only str & number
                 p2 = p3 = False
                 if(is_mouse_pressed()==True):
                     SHAPE_TEMPLATES[a[0]].draw_piece(mouseX-25,mouseY-25)
-                    p1_placed = can_place(position)
                 else:
+                    p1_placed = board.place(SHAPE_TEMPLATES[a[0]],position)
                     p1 = False
     else:
         if(chancep1 == 1):
