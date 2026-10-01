@@ -1,5 +1,6 @@
 #import random
 
+game_over = False
 p1 = p2 = p3 = False
 p1_placed = p2_placed = p3_placed = False
 chancep1 = chancep2 = chancep3 = 1
@@ -157,10 +158,36 @@ class Board:
                         self.board_info[start_y + i][start_x + j] = 1
                     j += 1
                 i += 1
+            self.clear_lines()
             return True
         else:
             return False
-
+    
+    def clear_lines(self):
+        ix=0
+        while(ix<len(self.board_info)):
+            jx=sumx=0
+            while(jx<len(self.board_info[ix])):
+                sumx+=self.board_info[ix][jx]
+                jx+=1
+            if(sumx == 8):
+                self.board_info[ix] = [0,0,0,0,0,0,0,0] 
+            ix+=1
+        jy=0
+        while(jy<len(self.board_info)):
+            iy=sumy=0
+            while(iy<len(self.board_info)):
+                sumy+=self.board_info[iy][jy]
+                iy+=1
+            if(sumy == 8):
+                clr=0
+                while(clr<len(self.board_info)):
+                    self.board_info[clr][jy] = 0
+                    clr+=1
+            jy+=1
+    
+    
+            
 
 class Piece:
     bms = []
@@ -188,6 +215,25 @@ class Piece:
         p2 = False
         p3 = False
 
+def check_game_over():
+    global game_over
+    over = True
+    index=0
+    placed = [p1_placed,p2_placed,p3_placed]
+    while(index<len(a)):
+        if(placed[index] == False):
+            i=0
+            while(i<len(board_info)):
+                j=0
+                while(j<len(board_info[i])):
+                    position = [i,j]
+                    if(board.can_place(SHAPE_TEMPLATES[a[index]],position)==True):
+                        over = False
+                    j+=1
+                i+=1
+        index+=1
+    if(over):
+        game_over = True
 
 def setup():
     global board
@@ -230,6 +276,11 @@ def draw():
             SHAPE_TEMPLATES[a[2]].draw_piece(mouseX - 25, mouseY - 25)
 
     text(num_piece, mouseX, mouseY)
+    check_game_over()
+    if(game_over):
+        fill(0, 0, 0, 180)
+        textSize(36)
+        text("GAME OVER", width / 2 - 110, height / 2 - 20)
 
 
 def mousePressed():
