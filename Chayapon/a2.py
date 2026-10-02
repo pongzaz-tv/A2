@@ -10,6 +10,7 @@ center_board_x = 250
 center_board_y = 200
 num_shape = num_piece = 0
 combo_streak = score = 0
+lines_points = False
 board_info =   [[0,0,0,0,0,0,0,0],
                 [0,0,0,0,0,0,0,0],
                 [0,0,0,0,0,0,0,0],
@@ -178,6 +179,7 @@ class Board:
             return False
     
     def clear_lines(self):
+        global score, lines_points
         ix=0
         while(ix<len(self.board_info)):
             jx=sumx=0
@@ -199,7 +201,7 @@ class Board:
                     self.board_info[clr][jy] = 0
                     clr+=1
             jy+=1
-        return True
+        score += 100
 
 class Piece:
     bms = []
@@ -271,7 +273,7 @@ def draw():
     textSize(22)
     text("Score: "+str(score),50,20)
     text("[S] Save  |  [L] Load",280,20)
-    
+
     if (num_piece == 0):
         a = [int(random(0, 13)), int(random(0, 13)), int(random(0, 13))]
         num_piece = 3
@@ -342,8 +344,9 @@ def mouseDragged():
 
 
 def mouseReleased():
-    global p1, p2, p3, p1_placed, p2_placed, p3_placed, chancep1, chancep2, chancep3, num_piece, a, board
+    global p1, p2, p3, p1_placed, p2_placed, p3_placed, chancep1, chancep2, chancep3, num_piece, a, board, lines_points
     position = board.check_grid(mouseX, mouseY)
+    lines_points = False
 
     if (p1 == True and chancep1 == 1):
         p1_placed = board.place(SHAPE_TEMPLATES[a[0]], position, a[0])
@@ -371,3 +374,6 @@ def mouseReleased():
             p3 = False
         else:
             SHAPE_TEMPLATES[a[2]].reset_pos()
+            
+    #if(lines_points):
+        
