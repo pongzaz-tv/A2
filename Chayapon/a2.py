@@ -9,6 +9,7 @@ grid_size = 50
 center_board_x = 250
 center_board_y = 200
 num_shape = num_piece = 0
+combo_streak = score = 0
 board_info =   [[0,0,0,0,0,0,0,0],
                 [0,0,0,0,0,0,0,0],
                 [0,0,0,0,0,0,0,0],
@@ -18,31 +19,31 @@ board_info =   [[0,0,0,0,0,0,0,0],
                 [0,0,0,0,0,0,0,0],
                 [0,0,0,0,0,0,0,0]]
 
-shape_dot = [[1]]
+shape_dot = [[1]] #0
 
-shape_2_downl = [[1,1]]
-shape_2_upl =   [[1],
+shape_2_downl = [[1,1]] #1
+shape_2_upl =   [[1], #2
                  [1]]
 
-shape_3_downl = [[1,1,1]]
-shape_3_upl = [[1],[1],[1]]
+shape_3_downl = [[1,1,1]] #3
+shape_3_upl = [[1],[1],[1]] #4
 
-shape_4_full =  [[1,1],
+shape_4_full =  [[1,1], #5
                  [1,1]]
-shape_4_downl = [[1,1,1,1]]
-shape_4_upl =  [[1],[1],[1],[1]]
+shape_4_downl = [[1,1,1,1]] #6
+shape_4_upl =  [[1],[1],[1],[1]] #7
 
-shape_4_left_topr = [[1,1],
+shape_4_left_topr = [[1,1], #8
                     [1,0]] 
-shape_4_left_topl = [[1,1],
+shape_4_left_topl = [[1,1], #9
                      [0,1]]
-shape_4_left_downr = [[1,0],
+shape_4_left_downr = [[1,0], #10
                       [1,1]]  
-shape_4_left_downl = [[0,1],
+shape_4_left_downl = [[0,1], #11
                       [1,1]] 
 
 shape_9_full = [[1,1,1],
-                [1,1,1],
+                [1,1,1], #12
                 [1,1,1]]
 
 
@@ -145,8 +146,21 @@ class Board:
             i += 1
         return True
 
-    def place(self, piece, position):
+    def place(self, piece, position, piece_points):
+        global score
         if (self.can_place(piece, position)):
+            if (piece_points == 0):
+                score += 10
+            elif (piece_points > 0 and piece_points < 3):
+                score += 20
+            elif (piece_points > 2 and piece_points < 5):
+                score += 30
+            elif (piece_points > 4 and piece_points < 8):
+                score += 40
+            elif (piece_points > 7 and piece_points < 12):
+                score += 30
+            elif (piece_points == 12):
+                score += 90
             start_x = position[0] - 1
             start_y = position[1] - 1
             bms = piece.bms
@@ -185,9 +199,7 @@ class Board:
                     self.board_info[clr][jy] = 0
                     clr+=1
             jy+=1
-    
-    
-            
+        return True
 
 class Piece:
     bms = []
@@ -235,6 +247,10 @@ def check_game_over():
     if(over):
         game_over = True
 
+#def save_game():
+    
+#def load_game():
+
 def setup():
     global board
     size(500, 600)
@@ -251,6 +267,11 @@ def draw():
     background(225)
     board.draw_board()
 
+    fill(0,0,0)
+    textSize(22)
+    text("Score: "+str(score),50,20)
+    text("[S] Save  |  [L] Load",280,20)
+    
     if (num_piece == 0):
         a = [int(random(0, 13)), int(random(0, 13)), int(random(0, 13))]
         num_piece = 3
@@ -281,8 +302,13 @@ def draw():
         fill(0, 0, 0, 180)
         textSize(36)
         text("GAME OVER", width / 2 - 110, height / 2 - 20)
-
-
+"""
+def keyPressed():
+    if key in ('s', 'S'):
+        #save_game()
+    elif key in ('l', 'L'):
+        #load_game()
+"""
 def mousePressed():
     global p1, p2, p3, p1_placed, p2_placed, p3_placed, chancep1, chancep2, chancep3
     if (p1_placed == False and chancep1 == 1):
@@ -320,7 +346,7 @@ def mouseReleased():
     position = board.check_grid(mouseX, mouseY)
 
     if (p1 == True and chancep1 == 1):
-        p1_placed = board.place(SHAPE_TEMPLATES[a[0]], position)
+        p1_placed = board.place(SHAPE_TEMPLATES[a[0]], position, a[0])
         if (p1_placed == True):
             num_piece -= 1
             chancep1 = 0
@@ -329,7 +355,7 @@ def mouseReleased():
             SHAPE_TEMPLATES[a[0]].reset_pos()
 
     if (p2 == True and chancep2 == 1):
-        p2_placed = board.place(SHAPE_TEMPLATES[a[1]], position)
+        p2_placed = board.place(SHAPE_TEMPLATES[a[1]], position, a[1])
         if (p2_placed == True):
             num_piece -= 1
             chancep2 = 0
@@ -338,7 +364,7 @@ def mouseReleased():
             SHAPE_TEMPLATES[a[1]].reset_pos()
 
     if (p3 == True and chancep3 == 1):
-        p3_placed = board.place(SHAPE_TEMPLATES[a[2]], position)
+        p3_placed = board.place(SHAPE_TEMPLATES[a[2]], position, a[2])
         if (p3_placed == True):
             num_piece -= 1
             chancep3 = 0
