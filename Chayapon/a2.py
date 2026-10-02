@@ -9,7 +9,7 @@ grid_size = 50
 center_board_x = 250
 center_board_y = 200
 num_shape = num_piece = 0
-combo_streak = score = 0
+combo_streak = score = combo_timer = combo_y = 0
 lines_points = False
 board_info =   [[0,0,0,0,0,0,0,0],
                 [0,0,0,0,0,0,0,0],
@@ -65,6 +65,7 @@ class Board:
         draw_cbx = self.cbx
         draw_cby = self.cby
         ix = iy = 0
+        fill(0,0,0)
         while (ix <= 8):
             line(draw_cbx, draw_cby, draw_cbx, draw_cby + 400)
             draw_cbx += 50
@@ -181,6 +182,7 @@ class Board:
     def clear_lines(self):
         global score, lines_points
         ix=0
+        
         while(ix<len(self.board_info)):
             jx=sumx=0
             while(jx<len(self.board_info[ix])):
@@ -188,6 +190,8 @@ class Board:
                 jx+=1
             if(sumx == 8):
                 self.board_info[ix] = [0,0,0,0,0,0,0,0] 
+                score += 100
+                lines_points = True
             ix+=1
         jy=0
         while(jy<len(self.board_info)):
@@ -200,8 +204,9 @@ class Board:
                 while(clr<len(self.board_info)):
                     self.board_info[clr][jy] = 0
                     clr+=1
+                score += 100
+                lines_points = True
             jy+=1
-        score += 100
 
 class Piece:
     bms = []
@@ -216,6 +221,7 @@ class Piece:
                 if (self.bms[i][j] == 1):
                     bx = x + (j * 50)
                     by = y + (i * 50)
+                    fill(0,0,0)
                     line(bx, by, bx + 50, by)
                     line(bx, by + 50, bx + 50, by + 50)
                     line(bx, by, bx, by + 50)
@@ -265,7 +271,7 @@ def setup():
 
 
 def draw():
-    global num_shape, num_piece, a, p1, p2, p3, p1_placed, p2_placed, p3_placed, chancep1, chancep2, chancep3
+    global num_shape, num_piece, a, p1, p2, p3, p1_placed, p2_placed, p3_placed, chancep1, chancep2, chancep3, lines_points, combo_streak, combo_timer, combo_y, score
     background(225)
     board.draw_board()
 
@@ -304,6 +310,23 @@ def draw():
         fill(0, 0, 0, 180)
         textSize(36)
         text("GAME OVER", width / 2 - 110, height / 2 - 20)
+        
+    if lines_points:
+        combo_streak += 1
+        score += (combo_streak - 1) * 50
+        combo_y = 255
+        combo_timer = 100
+        lines_points = False
+
+    if combo_timer > 0:
+        fill(225, 0, 0)
+        textSize(22)
+        if combo_streak >= 2:
+            text("STREAK X" + str(combo_streak) + " +" + str(100 + (combo_streak - 1) * 50), 150, combo_y)
+        else:
+            text("Line clear + 100", 170, combo_y)
+        combo_y -= 2
+        combo_timer -= 2
 """
 def keyPressed():
     if key in ('s', 'S'):
@@ -344,7 +367,7 @@ def mouseDragged():
 
 
 def mouseReleased():
-    global p1, p2, p3, p1_placed, p2_placed, p3_placed, chancep1, chancep2, chancep3, num_piece, a, board, lines_points
+    global p1, p2, p3, p1_placed, p2_placed, p3_placed, chancep1, chancep2, chancep3, num_piece, a, board
     position = board.check_grid(mouseX, mouseY)
     lines_points = False
 
@@ -374,6 +397,3 @@ def mouseReleased():
             p3 = False
         else:
             SHAPE_TEMPLATES[a[2]].reset_pos()
-            
-    #if(lines_points):
-        
