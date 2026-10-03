@@ -309,12 +309,36 @@ def draw():
         if (p2 == False):
             SHAPE_TEMPLATES[a[1]].draw_piece(175, 440)
         else:
+            if board.can_place(SHAPE_TEMPLATES[a[1]], position):
+                fill(200, 200, 200)
+                bms = SHAPE_TEMPLATES[a[1]].bms
+                i = 0
+                while (i < len(bms)):
+                    j = 0
+                    while (j < len(bms[i])):
+                        if (bms[i][j] == 1):
+                            ellipse(board.cbx + (position[0] - 1 + j) * 50 + 25, board.cby + (position[1] - 1 + i) * 50 + 25, 40, 40)
+                        j += 1
+                    i += 1
+                fill(255)
             SHAPE_TEMPLATES[a[1]].draw_piece(mouseX - 25, mouseY - 25)
 
     if (p3_placed == False and chancep3 == 1):
         if (p3 == False):
             SHAPE_TEMPLATES[a[2]].draw_piece(335, 440)
         else:
+            if board.can_place(SHAPE_TEMPLATES[a[2]], position):
+                fill(200, 200, 200)
+                bms = SHAPE_TEMPLATES[a[2]].bms
+                i = 0
+                while (i < len(bms)):
+                    j = 0
+                    while (j < len(bms[i])):
+                        if (bms[i][j] == 1):
+                            ellipse(board.cbx + (position[0] - 1 + j) * 50 + 25, board.cby + (position[1] - 1 + i) * 50 + 25, 40, 40)
+                        j += 1
+                    i += 1
+                fill(255)
             SHAPE_TEMPLATES[a[2]].draw_piece(mouseX - 25, mouseY - 25)
 
     text(num_piece, mouseX, mouseY)
