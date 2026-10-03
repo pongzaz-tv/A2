@@ -10,6 +10,9 @@ center_board_x = 250
 center_board_y = 200
 num_shape = num_piece = 0
 combo_streak = score = combo_timer = combo_y = 0
+status_notice = ""
+status_timer = 0
+SAVE_FILE = "savegame.txt"
 lines_points = False
 board_info =   [[0,0,0,0,0,0,0,0],
                 [0,0,0,0,0,0,0,0],
@@ -237,27 +240,66 @@ class Piece:
 
 def check_game_over():
     global game_over
+    placed = [p1_placed, p2_placed, p3_placed]
+    if (p1_placed and p2_placed and p3_placed):
+        return
     over = True
-    index=0
-    placed = [p1_placed,p2_placed,p3_placed]
-    while(index<len(a)):
-        if(placed[index] == False):
-            i=0
-            while(i<len(board_info)):
-                j=0
-                while(j<len(board_info[i])):
-                    position = [i,j]
-                    if(board.can_place(SHAPE_TEMPLATES[a[index]],position)==True):
+    index = 0
+    while (index < len(a)):
+        if (placed[index] == False):
+            r = 1
+            while (r <= 8):
+                c = 1
+                while (c <= 8):
+                    position = [c, r]
+                    if (board.can_place(SHAPE_TEMPLATES[a[index]], position) == True):
                         over = False
-                    j+=1
-                i+=1
-        index+=1
-    if(over):
+                        c = 9
+                        r = 9
+                    c += 1
+                r += 1
+        index += 1
+
+    if (over):
         game_over = True
 
-#def save_game():
-    
-#def load_game():
+def save_game():
+    global status_notice, status_timer
+    board_info = Board.board_info
+    i = 0
+    try:
+        with open(SAVE_FILE, "w") as file:
+            while(i<len(board_info)-1):
+                file.write(board_info[i],end="","/",end="")
+                i += 1
+            file.write(board_info[7],"\n")
+            file.write(score,end="",",",end="",combo_streak,"\n")
+            if(p1_placed==True):
+                file.write(SHAPE_TEMPLATES[a[0]],end="",":",int(random(0,5)),end="")
+            else:
+                file.write("EMPTY",end="")
+            file.write(";",end="")
+            if(p2_placed==False):
+                file.write(SHAPE_TEMPLATES[a[1]],end="",":",int(random(0,5)),end="")
+            else:
+                file.write("EMPTY",end="")
+            if(p3_placed==False):
+                file.write(SHAPE_TEMPLATES[a[2]],end="",":",int(random(0,5)),end="")
+            else:
+                file.write("EMPTY",end="")
+        status_notice = "Game Saved"
+        status_timer = 60
+    except Exception as e:
+        status_notice = "Save Failed"
+        status_timer = 60
+
+def load_game():
+    global board, score, combo_streak, a, num_piece
+    global p1, p2, p3, p1_placed, p2_placed, p3_placed
+    global chancep1, chancep2, chancep3, game_over
+    global status_notice, status_timer
+
+
 
 def setup():
     global board
@@ -364,13 +406,18 @@ def draw():
             text("Line clear + 100", 170, combo_y)
         combo_y -= 2
         combo_timer -= 2
-"""
+
+
+    if (status_timer > 0):
+        text(status_notice,175,255)
+        status_timer -= 1
+
 def keyPressed():
     if key in ('s', 'S'):
-        #save_game()
+        save_game()
     elif key in ('l', 'L'):
-        #load_game()
-"""
+        load_game()
+
 def mousePressed():
     global p1, p2, p3, p1_placed, p2_placed, p3_placed, chancep1, chancep2, chancep3
     if (p1_placed == False and chancep1 == 1):
@@ -404,7 +451,6 @@ def mouseDragged():
 def mouseReleased():
     global p1, p2, p3, p1_placed, p2_placed, p3_placed, chancep1, chancep2, chancep3, num_piece, a, board
     position = board.check_grid(mouseX, mouseY)
-    lines_points = False
 
     if (p1 == True and chancep1 == 1):
         p1_placed = board.place(SHAPE_TEMPLATES[a[0]], position, a[0])
