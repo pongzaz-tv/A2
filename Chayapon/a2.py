@@ -274,6 +274,7 @@ def draw():
     global num_shape, num_piece, a, p1, p2, p3, p1_placed, p2_placed, p3_placed, chancep1, chancep2, chancep3, lines_points, combo_streak, combo_timer, combo_y, score
     background(225)
     board.draw_board()
+    position = board.check_grid(mouseX, mouseY)
 
     fill(0,0,0)
     textSize(22)
@@ -290,6 +291,18 @@ def draw():
         if (p1 == False):
             SHAPE_TEMPLATES[a[0]].draw_piece(15, 440)
         else:
+            if board.can_place(SHAPE_TEMPLATES[a[0]], position):
+                fill(200, 200, 200)
+                bms = SHAPE_TEMPLATES[a[0]].bms
+                i = 0
+                while (i < len(bms)):
+                    j = 0
+                    while (j < len(bms[i])):
+                        if (bms[i][j] == 1):
+                            ellipse(board.cbx + (position[0] - 1 + j) * 50 + 25, board.cby + (position[1] - 1 + i) * 50 + 25, 40, 40)
+                        j += 1
+                    i += 1
+                fill(255)
             SHAPE_TEMPLATES[a[0]].draw_piece(mouseX - 25, mouseY - 25)
 
     if (p2_placed == False and chancep2 == 1):
@@ -310,7 +323,7 @@ def draw():
         fill(0, 0, 0, 180)
         textSize(36)
         text("GAME OVER", width / 2 - 110, height / 2 - 20)
-        
+
     if lines_points:
         combo_streak += 1
         score += (combo_streak - 1) * 50
@@ -352,7 +365,6 @@ def mousePressed():
             p1 = False
             p2 = False
 
-
 def mouseDragged():
     global p1, p2, p3, p1_placed, p2_placed, p3_placed, chancep1, chancep2, chancep3
     if (p1_placed == False and chancep1 == 1):
@@ -364,8 +376,7 @@ def mouseDragged():
     if (p3_placed == False and chancep3 == 1):
         if (mouseX > 335 and mouseY > 440 and p1 == False and p2 == False):
             p3 = True
-
-
+        
 def mouseReleased():
     global p1, p2, p3, p1_placed, p2_placed, p3_placed, chancep1, chancep2, chancep3, num_piece, a, board
     position = board.check_grid(mouseX, mouseY)
