@@ -240,53 +240,59 @@ class Piece:
 
 def check_game_over():
     global game_over
-    placed = [p1_placed, p2_placed, p3_placed]
-    if (p1_placed and p2_placed and p3_placed):
-        return
     over = True
-    index = 0
-    while (index < len(a)):
-        if (placed[index] == False):
-            r = 1
-            while (r <= 8):
-                c = 1
-                while (c <= 8):
-                    position = [c, r]
-                    if (board.can_place(SHAPE_TEMPLATES[a[index]], position) == True):
+    index=0
+    placed = [p1_placed,p2_placed,p3_placed]
+    while(index<len(a)):
+        if(placed[index] == False):
+            i=0
+            while(i<len(board_info)):
+                j=0
+                while(j<len(board_info[i])):
+                    position = [i,j]
+                    if(board.can_place(SHAPE_TEMPLATES[a[index]],position)==True):
                         over = False
-                        c = 9
-                        r = 9
-                    c += 1
-                r += 1
-        index += 1
-
-    if (over):
+                    j+=1
+                i+=1
+        index+=1
+    if(over):
         game_over = True
 
 def save_game():
     global status_notice, status_timer
-    board_info = Board.board_info
+    board_info = []
+    board_info = board.board_info
     i = 0
     try:
         with open(SAVE_FILE, "w") as file:
-            while(i<len(board_info)-1):
-                file.write(board_info[i],end="","/",end="")
+            while (i < len(board_info)):
+                row = board_info[i]
+                row_str = "["
+                c = 0
+                while (c < len(row)):
+                    row_str += str(row[c])
+                    if (c < len(row) - 1):
+                        row_str += ","
+                    c += 1
+                row_str += "]"
+                
+                file.write(row_str)
+                if (i < len(board_info) - 1):
+                    file.write("/")
                 i += 1
-            file.write(board_info[7],"\n")
-            file.write(score,end="",",",end="",combo_streak,"\n")
-            if(p1_placed==True):
-                file.write(SHAPE_TEMPLATES[a[0]],end="",":",int(random(0,5)),end="")
-            else:
-                file.write("EMPTY",end="")
-            file.write(";",end="")
-            if(p2_placed==False):
-                file.write(SHAPE_TEMPLATES[a[1]],end="",":",int(random(0,5)),end="")
-            else:
-                file.write("EMPTY",end="")
-            if(p3_placed==False):
-                file.write(SHAPE_TEMPLATES[a[2]],end="",":",int(random(0,5)),end="")
-            else:
-                file.write("EMPTY",end="")
+            
+            file.write(str(score)+","+str(combo_streak)+"\n")
+            
+            pieces = []
+            placed_states = [p1_placed, p2_placed, p3_placed]
+            for i in range(3):
+                if (placed_states[i]):
+                    pieces.append("EMPTY")
+                else:
+                    pieces.append(str(a[i]) + ":" + str(int(random(0, 5))))
+            
+            file.write(";".join(pieces) + "\n")
+            
         status_notice = "Game Saved"
         status_timer = 60
     except Exception as e:
@@ -298,8 +304,93 @@ def load_game():
     global p1, p2, p3, p1_placed, p2_placed, p3_placed
     global chancep1, chancep2, chancep3, game_over
     global status_notice, status_timer
+    
+    try:
+        with open(SAVE_FILE, "r") as file:
+            content = file.read()
+        idx = 0
+        new_board_info = []
+        row = []
+        while (idx < len(content) and len(new_board_info) < 8):
+            ch = content[idx]
+            if (ch == '0' or ch == '1'):
+                row.append(int(ch))
+                if (len(row) == 8):
+                    new_board_info.append(row)
+                    row = []
+            idx += 1
+        board.board_info = new_board_info
+        while (idx < len(content) and content[idx] != ']'):
+            idx += 1
+        if (idx < len(content) and content[idx] == ']'):
+            idx += 1
 
+        score_str = ""
+        while (idx < len(content) and content[idx] >= '0' and content[idx] <= '9'):
+            score_str += content[idx]
+            idx += 1
+        score = int(score_str) if score_str != "" else 0
+        if (idx < len(content) and content[idx] == ','):
+            idx += 1
 
+        combo_str = ""
+        while (idx < len(content) and content[idx] >= '0' and content[idx] <= '9'):
+            combo_str += content[idx]
+            idx += 1
+        combo_streak = int(combo_str) if combo_str != "" else 0
+        while (idx < len(content) and (content[idx] == '\n' or content[idx] == '\r')):
+            idx += 1
+
+        placed_states = [False, False, False]
+        chances = [0, 0, 0]
+        remaining_pieces = 0
+
+        i = 0
+        while (i < 3):
+            token = ""
+            while (idx < len(content) and content[idx] != ';' and content[idx] != '\n' and content[idx] != '\r'):
+                token += content[idx]
+                idx += 1
+            if (idx < len(content) and content[idx] == ';'):
+                idx += 1
+            if (token == "EMPTY"):
+                placed_states[i] = True
+                chances[i] = 0
+            else:
+                shape_str = ""
+                c_idx = 0
+                while (c_idx < len(token)):
+                    c = token[c_idx]
+                    if (c == ':'):
+                        break
+                    shape_str += c
+                    c_idx += 1
+                a[i] = int(shape_str)
+                placed_states[i] = False
+                chances[i] = 1
+                remaining_pieces += 1
+            i += 1
+
+        p1_placed = placed_states[0]
+        p2_placed = placed_states[1]
+        p3_placed = placed_states[2]
+
+        chancep1 = chances[0]
+        chancep2 = chances[1]
+        chancep3 = chances[2]
+
+        p1 = False
+        p2 = False
+        p3 = False
+        num_piece = remaining_pieces
+        game_over = False
+
+        status_notice = "Game Loaded"
+        status_timer = 60
+
+    except Exception:
+        status_notice = "Load Failed"
+        status_timer = 60
 
 def setup():
     global board
@@ -313,7 +404,7 @@ def setup():
 
 
 def draw():
-    global num_shape, num_piece, a, p1, p2, p3, p1_placed, p2_placed, p3_placed, chancep1, chancep2, chancep3, lines_points, combo_streak, combo_timer, combo_y, score
+    global num_shape, num_piece, a, p1, p2, p3, p1_placed, p2_placed, p3_placed, chancep1, chancep2, chancep3, lines_points, combo_streak, combo_timer, combo_y, score, status_timer
     background(225)
     board.draw_board()
     position = board.check_grid(mouseX, mouseY)
@@ -407,7 +498,6 @@ def draw():
         combo_y -= 2
         combo_timer -= 2
 
-
     if (status_timer > 0):
         text(status_notice,175,255)
         status_timer -= 1
@@ -451,6 +541,7 @@ def mouseDragged():
 def mouseReleased():
     global p1, p2, p3, p1_placed, p2_placed, p3_placed, chancep1, chancep2, chancep3, num_piece, a, board
     position = board.check_grid(mouseX, mouseY)
+    lines_points = False
 
     if (p1 == True and chancep1 == 1):
         p1_placed = board.place(SHAPE_TEMPLATES[a[0]], position, a[0])
