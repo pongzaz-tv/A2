@@ -280,7 +280,7 @@ def save_game():
                 if (i < len(board_info) - 1):
                     file.write("/")
                 i += 1
-            
+            file.write("\n")
             file.write(str(score)+","+str(combo_streak)+"\n")
             
             pieces = []
@@ -320,9 +320,11 @@ def load_game():
                     row = []
             idx += 1
         board.board_info = new_board_info
-        while (idx < len(content) and content[idx] != ']'):
+        while (idx < len(content) and (content[idx] == '\n' or content[idx] == '\r')):
             idx += 1
-        if (idx < len(content) and content[idx] == ']'):
+        while (idx < len(content) and content[idx] != '\n' and content[idx] != '\r'):
+            idx += 1
+        while (idx < len(content) and (content[idx] == '\n' or content[idx] == '\r')):
             idx += 1
 
         score_str = ""
