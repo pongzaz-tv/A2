@@ -5,6 +5,7 @@ p1 = p2 = p3 = False
 p1_placed = p2_placed = p3_placed = False
 chancep1 = chancep2 = chancep3 = 1
 a = [0, 0, 0]
+b = [0, 0, 0]
 grid_size = 50
 center_board_x = 250
 center_board_y = 200
@@ -22,6 +23,12 @@ board_info =   [[0,0,0,0,0,0,0,0],
                 [0,0,0,0,0,0,0,0],
                 [0,0,0,0,0,0,0,0],
                 [0,0,0,0,0,0,0,0]]
+
+PALETTE =  [(245, 93, 62),   # Orange-Red
+            (66, 133, 244),  # Blue
+            (52, 168, 83),   # Green
+            (251, 188, 5),   # Yellow
+            (171, 71, 188)]  # Purple
 
 shape_dot = [[1]] #0
 
@@ -83,7 +90,9 @@ class Board:
         while (r < 8):
             c = 0
             while (c < 8):
-                if (self.board_info[r][c] == 1):
+                if (self.board_info[r][c] > 0):
+                    clr = PALETTE[self.board_info[r][c] - 1]
+                    fill(clr[0], clr[1], clr[2])
                     ellipse(self.cbx + (c * 50) + 25, self.cby + (r * 50) + 25, 40, 40)
                 c += 1
             r += 1
@@ -145,13 +154,13 @@ class Board:
                     target_y = start_y + i
                     if (target_x >= 8 or target_y >= 8):
                         return False
-                    if (self.board_info[target_y][target_x] == 1):
+                    if (self.board_info[target_y][target_x] != 0):
                         return False
                 j += 1
             i += 1
         return True
 
-    def place(self, piece, position, piece_points):
+    def place(self, piece, position, piece_points, color_code):
         global score
         if (self.can_place(piece, position)):
             if (piece_points == 0):
@@ -174,7 +183,7 @@ class Board:
                 j = 0
                 while (j < len(bms[i])):
                     if (bms[i][j] == 1):
-                        self.board_info[start_y + i][start_x + j] = 1
+                        self.board_info[start_y + i][start_x + j] = color_code
                     j += 1
                 i += 1
             self.clear_lines()
@@ -187,22 +196,24 @@ class Board:
         ix=0
         
         while(ix<len(self.board_info)):
-            jx=sumx=0
+            jx=count=0
             while(jx<len(self.board_info[ix])):
-                sumx+=self.board_info[ix][jx]
+                if(self.board_info[ix][jx] != 0):
+                    count+=1
                 jx+=1
-            if(sumx == 8):
+            if(count == 8):
                 self.board_info[ix] = [0,0,0,0,0,0,0,0] 
                 score += 100
                 lines_points = True
             ix+=1
         jy=0
         while(jy<len(self.board_info)):
-            iy=sumy=0
+            iy=count=0
             while(iy<len(self.board_info)):
-                sumy+=self.board_info[iy][jy]
+                if(self.board_info[iy][jy] != 0):
+                    count+=1
                 iy+=1
-            if(sumy == 8):
+            if(count == 8):
                 clr=0
                 while(clr<len(self.board_info)):
                     self.board_info[clr][jy] = 0
@@ -289,7 +300,7 @@ def save_game():
                 if (placed_states[i]):
                     pieces.append("EMPTY")
                 else:
-                    pieces.append(str(a[i]) + ":" + str(int(random(0, 5))))
+                    pieces.append(str(a[i]) + ":" + str(b[i]))
             
             file.write(";".join(pieces) + "\n")
             
@@ -300,7 +311,7 @@ def save_game():
         status_timer = 60
 
 def load_game():
-    global board, score, combo_streak, a, num_piece
+    global board, score, combo_streak, a, b, num_piece
     global p1, p2, p3, p1_placed, p2_placed, p3_placed
     global chancep1, chancep2, chancep3, game_over
     global status_notice, status_timer
@@ -313,7 +324,7 @@ def load_game():
         row = []
         while (idx < len(content) and len(new_board_info) < 8):
             ch = content[idx]
-            if (ch == '0' or ch == '1'):
+            if (ch >= '0' and ch <= '5'):
                 row.append(int(ch))
                 if (len(row) == 8):
                     new_board_info.append(row)
@@ -359,18 +370,25 @@ def load_game():
                 placed_states[i] = True
                 chances[i] = 0
             else:
-                shape_str = ""
-                c_idx = 0
-                while (c_idx < len(token)):
-                    c = token[c_idx]
-                    if (c == ':'):
-                        break
-                    shape_str += c
-                    c_idx += 1
-                a[i] = int(shape_str)
-                placed_states[i] = False
-                chances[i] = 1
-                remaining_pieces += 1
+              shape_str = ""
+              color_str = ""
+              is_color = False
+              c_idx = 0
+              while (c_idx < len(token)):
+                  c = token[c_idx]
+                  if (c == ':'):
+                      is_color = True
+                      c_idx += 1
+                      continue
+                  if not is_color:
+                      shape_str += c
+                  else:
+                      color_str += c
+                  c_idx += 1
+              a[i] = int(shape_str)
+              b[i] = int(color_str)
+              placed_states[i] = False
+              chances[i] = 1
             i += 1
 
         p1_placed = placed_states[0]
@@ -406,7 +424,7 @@ def setup():
 
 
 def draw():
-    global num_shape, num_piece, a, p1, p2, p3, p1_placed, p2_placed, p3_placed, chancep1, chancep2, chancep3, lines_points, combo_streak, combo_timer, combo_y, score, status_timer
+    global num_shape, num_piece, a, b, p1, p2, p3, p1_placed, p2_placed, p3_placed, chancep1, chancep2, chancep3, lines_points, combo_streak, combo_timer, combo_y, score, status_timer
     background(225)
     board.draw_board()
     position = board.check_grid(mouseX, mouseY)
@@ -418,6 +436,7 @@ def draw():
 
     if (num_piece == 0):
         a = [int(random(0, 13)), int(random(0, 13)), int(random(0, 13))]
+        b = [int(random(0, 5)), int(random(0, 5)), int(random(0, 5))]
         num_piece = 3
         p1 = p2 = p3 = p1_placed = p2_placed = p3_placed = False
         chancep1 = chancep2 = chancep3 = 1
@@ -546,7 +565,7 @@ def mouseReleased():
     lines_points = False
 
     if (p1 == True and chancep1 == 1):
-        p1_placed = board.place(SHAPE_TEMPLATES[a[0]], position, a[0])
+        p1_placed = board.place(SHAPE_TEMPLATES[a[0]], position, a[0], b[0] +1)
         if (p1_placed == True):
             num_piece -= 1
             chancep1 = 0
@@ -555,7 +574,7 @@ def mouseReleased():
             SHAPE_TEMPLATES[a[0]].reset_pos()
 
     if (p2 == True and chancep2 == 1):
-        p2_placed = board.place(SHAPE_TEMPLATES[a[1]], position, a[1])
+        p2_placed = board.place(SHAPE_TEMPLATES[a[1]], position, a[1], b[1] +1)
         if (p2_placed == True):
             num_piece -= 1
             chancep2 = 0
@@ -564,7 +583,7 @@ def mouseReleased():
             SHAPE_TEMPLATES[a[1]].reset_pos()
 
     if (p3 == True and chancep3 == 1):
-        p3_placed = board.place(SHAPE_TEMPLATES[a[2]], position, a[2])
+        p3_placed = board.place(SHAPE_TEMPLATES[a[2]], position, a[2], b[2] +1)
         if (p3_placed == True):
             num_piece -= 1
             chancep3 = 0
