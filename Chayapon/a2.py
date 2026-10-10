@@ -445,57 +445,21 @@ def draw():
         if (p1 == False):
             SHAPE_TEMPLATES[a[0]].draw_piece(15, 440)
         else:
-            if board.can_place(SHAPE_TEMPLATES[a[0]], position):
-                fill(200, 200, 200)
-                bms = SHAPE_TEMPLATES[a[0]].bms
-                i = 0
-                while (i < len(bms)):
-                    j = 0
-                    while (j < len(bms[i])):
-                        if (bms[i][j] == 1):
-                            ellipse(board.cbx + (position[0] - 1 + j) * 50 + 25, board.cby + (position[1] - 1 + i) * 50 + 25, 40, 40)
-                        j += 1
-                    i += 1
-                fill(255)
-            SHAPE_TEMPLATES[a[0]].draw_piece(mouseX - 25, mouseY - 25)
+            ghost_preview(a[0], board, position)
 
     if (p2_placed == False and chancep2 == 1):
         if (p2 == False):
             SHAPE_TEMPLATES[a[1]].draw_piece(175, 440)
         else:
-            if board.can_place(SHAPE_TEMPLATES[a[1]], position):
-                fill(200, 200, 200)
-                bms = SHAPE_TEMPLATES[a[1]].bms
-                i = 0
-                while (i < len(bms)):
-                    j = 0
-                    while (j < len(bms[i])):
-                        if (bms[i][j] == 1):
-                            ellipse(board.cbx + (position[0] - 1 + j) * 50 + 25, board.cby + (position[1] - 1 + i) * 50 + 25, 40, 40)
-                        j += 1
-                    i += 1
-                fill(255)
-            SHAPE_TEMPLATES[a[1]].draw_piece(mouseX - 25, mouseY - 25)
+            ghost_preview(a[1], board, position)
 
     if (p3_placed == False and chancep3 == 1):
         if (p3 == False):
             SHAPE_TEMPLATES[a[2]].draw_piece(335, 440)
         else:
-            if board.can_place(SHAPE_TEMPLATES[a[2]], position):
-                fill(200, 200, 200)
-                bms = SHAPE_TEMPLATES[a[2]].bms
-                i = 0
-                while (i < len(bms)):
-                    j = 0
-                    while (j < len(bms[i])):
-                        if (bms[i][j] == 1):
-                            ellipse(board.cbx + (position[0] - 1 + j) * 50 + 25, board.cby + (position[1] - 1 + i) * 50 + 25, 40, 40)
-                        j += 1
-                    i += 1
-                fill(255)
-            SHAPE_TEMPLATES[a[2]].draw_piece(mouseX - 25, mouseY - 25)
-
-    text(num_piece, mouseX, mouseY)
+            ghost_preview(a[2], board, position)
+    #text(num_piece, mouseX, mouseY)
+    
     check_game_over()
     if(game_over):
         fill(0, 0, 0, 180)
@@ -510,14 +474,33 @@ def draw():
         lines_points = False
 
     if combo_timer > 0:
-        fill(225, 0, 0)
-        textSize(22)
-        if combo_streak >= 2:
-            text("STREAK X" + str(combo_streak) + " +" + str(100 + (combo_streak - 1) * 50), 150, combo_y)
-        else:
-            text("Line clear + 100", 170, combo_y)
-        combo_y -= 2
-        combo_timer -= 2
+        show_timer()
+
+def ghost_preview(a, board, position):
+    if board.can_place(SHAPE_TEMPLATES[a], position):
+        fill(200, 200, 200)
+        bms = SHAPE_TEMPLATES[a].bms
+        i = 0
+        while (i < len(bms)):
+            j = 0
+            while (j < len(bms[i])):
+                if (bms[i][j] == 1):
+                    ellipse(board.cbx + (position[0] - 1 + j) * 50 + 25, board.cby + (position[1] - 1 + i) * 50 + 25, 40, 40)
+                j += 1
+            i += 1
+        fill(255)
+    SHAPE_TEMPLATES[a].draw_piece(mouseX - 25, mouseY - 25)
+        
+def show_timer():
+    global combo_y, combo_timer, status_timer
+    fill(225, 0, 0)
+    textSize(22)
+    if combo_streak >= 2:
+        text("STREAK X" + str(combo_streak) + " +" + str(100 + (combo_streak - 1) * 50), 150, combo_y)
+    else:
+        text("Line clear + 100", 170, combo_y)
+    combo_y -= 2
+    combo_timer -= 2
 
     if (status_timer > 0):
         text(status_notice,175,255)
